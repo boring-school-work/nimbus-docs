@@ -1,0 +1,364 @@
+openapi: 3.0.0
+info:
+  description: Nimbus API provides services related to smart budgeting and investment advisory.
+  version: "1.0.0"
+  title: Nimbus API
+  contact:
+    name: Elikem Gale Zoyiku
+    email: egalezoyiku@gmail.com
+  license:
+    name: MIT
+    url: "https://github.com/Si-kaR/NIMBUS/blob/main/LICENSE"
+servers:
+  - description: localhost
+    url: http://localhost:5000
+  - description: live server
+    url: http://64.225.12.127:5000
+tags:
+  - name: budgeting
+    description: Operations related to budgeting and income allocation
+  - name: investment
+    description: Operations related to investment suggestions
+  - name: financial-literacy
+    description: Operations related to financial literacy content
+  - name: financial-quizzes
+    description: Operations related to financial quizzes
+
+paths:
+  /financial-terms:
+    get:
+      tags:
+        - financial-literacy
+      summary: Get financial term meaning
+      operationId: getTermMeaning
+      description: Provides the meaning of a specified financial term.
+      parameters:
+        - in: query
+          name: term
+          description: The financial term to retrieve the meaning for
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Term meaning retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Term:
+                    type: string
+                    example: "Compound Interest"
+                  Explanation:
+                    type: string
+                    example: "Compound interest is the interest earned on both the principal amount and the accumulated interest. It's like earning interest on interest, resulting in exponential growth over time. Imagine you invest $100 at a 10% annual interest rate. After the first year, you earn $10 in interest, bringing your total to $110. The next year, you earn 10% on $110, which is $11, increasing your total to $121. This process continues, with interest earned on the previous year's interest, leading to a larger and larger return. Compound interest is widely used in financial instruments like savings accounts, loans, and investments. It's a powerful concept that can dramatically enhance wealth accumulation over long periods. For instance, investing early in a retirement account can leverage the power of compound interest to build a significant nest egg for the future. The earlier you start, the more time compound interest has to work its magic, resulting in a larger return on your investment."
+        "400":
+          description: Invalid input parameter
+        "404":
+          description: Term not found
+
+  /risk-assessment:
+    get:
+      tags:
+        - investment
+      summary: Get risk assessment questions
+      operationId: getRiskAssessmentQuestions
+      description: Retrieves the risk tolerance assessment questions for the user.
+      responses:
+        "200":
+          description: Risk assessment questions retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/risk_assessment_questions"
+        "400":
+          description: Invalid input parameter
+        "404":
+          description: Questions not found
+    post:
+      tags:
+        - budgeting
+      summary: Update budget allocation
+      operationId: updateBudget
+      description: Updates the budget allocation for a user based on new priorities or financial situations.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BudgetUpdate"
+        description: Budget update information
+      responses:
+        "200":
+          description: Budget updated successfully
+        "400":
+          description: Invalid input or budget update failed
+
+  /risk-tolerance:
+    get:
+      tags:
+        - investment
+      summary: Get investment suggestions based on risk tolerance
+      operationId: getRiskTolerance
+      description: Provides investment suggestions based on the user's risk tolerance.
+      parameters:
+        - in: query
+          name: userId
+          description: ID of the user to retrieve investment suggestions for
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: riskTolerance
+          description: The user's risk tolerance level (e.g., low, medium, high)
+          required: true
+          schema:
+            type: string
+            enum: [low, medium, high]
+      responses:
+        "200":
+          description: Investment suggestions retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/investment_option_generation"
+        "400":
+          description: Invalid input parameter
+        "404":
+          description: User not found
+
+  /financial-literacy:
+    get:
+      tags:
+        - financial-literacy
+      summary: Get financial literacy content
+      operationId: getFinancialLiteracyContent
+      description: Provides educational content related to personal finance, budgeting, and investing.
+      parameters:
+        - in: query
+          name: userId
+          description: ID of the user to retrieve financial literacy content for
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Financial literacy content retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FinancialLiteracyContent"
+        "400":
+          description: Invalid input parameter
+        "404":
+          description: User not found
+
+  /financial-quizzes:
+    get:
+      tags:
+        - financial-quizzes
+      summary: Get financial quizzes
+      operationId: getFinancialQuizzes
+      description: Provides financial quizzes to test knowledge on investing and financial concepts.
+      parameters:
+        - in: query
+          name: riskLevel
+          description: Risk level to tailor the quiz questions
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Financial quizzes retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/generate_quizzes"
+        "400":
+          description: Invalid input parameter
+        "404":
+          description: Quizzes not found
+
+components:
+  schemas:
+    risk_assessment_questions:
+      type: object
+      properties:
+        Description:
+          type: string
+          example: "Risk tolerance is how comfortable you are with the possibility of losing money when you invest."
+        1:
+          type: object
+          properties:
+            Question:
+              type: string
+              example: "Would you prefer an investment that is likely to make a little money but is very safe, or an investment that could make a lot of money but also could lose some money?"
+            Options:
+              type: object
+              properties:
+                a:
+                  type: string
+                  example: "Very safe, little money"
+                b:
+                  type: string
+                  example: "Could make a lot, could lose some"
+                c:
+                  type: string
+                  example: "Don't know"
+        2:
+          type: object
+          properties:
+            Question:
+              type: string
+              example: "If you invested money and it lost a little value, would you:"
+            Options:
+              type: object
+              properties:
+                a:
+                  type: string
+                  example: "Be very upset and want to sell it immediately"
+                b:
+                  type: string
+                  example: "Not be too worried and keep it invested"
+                c:
+                  type: string
+                  example: "Not sure"
+        3:
+          type: object
+          properties:
+            Question:
+              type: string
+              example: "Imagine you invested in a company and it went bankrupt. Would you be:"
+            Options:
+              type: object
+              properties:
+                a:
+                  type: string
+                  example: "Extremely disappointed and worried about losing your money"
+                b:
+                  type: string
+                  example: "Disappointed, but not surprised and willing to accept it"
+                c:
+                  type: string
+                  example: "Not sure"
+        4:
+          type: object
+          properties:
+            Question:
+              type: string
+              example: "Would you prefer an investment where the value goes up and down a lot, or one where the value stays pretty steady?"
+            Options:
+              type: object
+              properties:
+                a:
+                  type: string
+                  example: "Up and down a lot"
+                b:
+                  type: string
+                  example: "Stays pretty steady"
+                c:
+                  type: string
+                  example: "Don't know"
+        5:
+          type: object
+          properties:
+            Question:
+              type: string
+              example: "If you had to choose between investing in a company you know well or a company you don't know, which would you choose?"
+            Options:
+              type: object
+              properties:
+                a:
+                  type: string
+                  example: "Company I know well"
+                b:
+                  type: string
+                  example: "Company I don't know"
+                c:
+                  type: string
+                  example: "Don't know"
+
+    investment_option_generation:
+      type: object
+      properties:
+        Description:
+          type: string
+          example: "*Risk tolerance* refers to an investor's ability and willingness to accept potential losses in exchange for the possibility of higher returns. Investors with a high risk tolerance are comfortable with the possibility of losing a significant portion of their investment in the short term, as they believe they have the time horizon and financial capacity to weather potential losses and benefit from the potential for higher gains."
+        1:
+          type: object
+          properties:
+            Option:
+              type: string
+              example: "High-Risk Investment"
+            Details:
+              type: string
+              example: "High-risk investments might include growth stocks or startups that have the potential for substantial returns but also come with significant risk. These investments are suitable for individuals with a high-risk tolerance who are prepared for potential volatility and loss in the short term."
+        2:
+          type: object
+          properties:
+            Option:
+              type: string
+              example: "Moderate-Risk Investment"
+            Details:
+              type: string
+              example: "Moderate-risk investments might include balanced mutual funds or dividend-paying stocks. These investments offer a balance between risk and return, providing moderate potential gains with some level of stability. Suitable for individuals with a moderate risk tolerance."
+        3:
+          type: object
+          properties:
+            Option:
+              type: string
+              example: "Low-Risk Investment"
+            Details:
+              type: string
+              example: "Low-risk investments might include government bonds or high-quality corporate bonds. These investments are generally more stable and provide lower but more predictable returns. Suitable for individuals with a low-risk tolerance who prioritize capital preservation."
+        4:
+          type: object
+          properties:
+            Option:
+              type: string
+              example: "Cash Equivalents"
+            Details:
+              type: string
+              example: "Cash equivalents include savings accounts or money market funds. They offer minimal risk and easy access to funds but provide very low returns. Suitable for individuals with very low-risk tolerance or those who need to keep funds easily accessible."
+
+    BudgetUpdate:
+      type: object
+      properties:
+        category:
+          type: string
+          description: The category of the budget being updated
+          example: "Groceries"
+        amount:
+          type: number
+          format: float
+          description: The new amount allocated to the specified category
+          example: 200.00
+
+    FinancialLiteracyContent:
+      type: object
+      properties:
+        Title:
+          type: string
+          example: "Understanding Compound Interest"
+        Content:
+          type: string
+          example: "Compound interest is the interest earned on both the principal amount and the accumulated interest. It's like earning interest on interest, resulting in exponential growth over time..."
+
+    generate_quizzes:
+      type: object
+      properties:
+        Question:
+          type: string
+          example: "What is the best investment strategy for someone with a low risk tolerance?"
+        Options:
+          type: object
+          properties:
+            a:
+              type: string
+              example: "Invest in high-growth stocks"
+            b:
+              type: string
+              example: "Invest in government bonds"
+            c:
+              type: string
+              example: "Invest in speculative startups"
