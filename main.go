@@ -9,8 +9,8 @@ import (
 
 // define base url and port
 var (
-	baseURL string = "/nimbus/api/v1/"
-	port    string = ":3211"
+	baseURL string = "/api/v1/"
+	port    string = ":80"
 )
 
 // getURI returns a string that represents the HTTP method and path
@@ -33,10 +33,10 @@ func main() {
 	// serve Swagger UI
 	mux.HandleFunc(
 		getURI("GET", "swagger/ui/"),
-		httpSwagger.Handler(httpSwagger.URL("http://localhost:3211/nimbus/api/v1/swagger/swagger.yaml")),
+		httpSwagger.Handler(httpSwagger.URL("https://nimbus-docs.onrender.com/api/v1/swagger/swagger.yaml")),
 	)
 
-	log.Printf("Starting api docs at http://localhost%s%s%s\n", port, baseURL, "swagger/ui")
+	log.Println("Starting api docs ...")
 
 	if err := http.ListenAndServe(port, mux); err != nil {
 		log.Println(err)
